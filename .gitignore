@@ -1,0 +1,14 @@
+# Environnement virtuel
+venv/
+
+# Fichiers temporaires
+*.pyc
+__pycache__/
+
+# DVC cache
+.dvc/
+.cache/
+.DS_Store
+
+# MLflow artifacts
+mlruns/
