@@ -48,7 +48,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           # On pousse directement la branche dev vers la branche staging
-          git push origin dev:staging
+          git push origin dev:staging --force
 
   staging-build-test-main:
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
