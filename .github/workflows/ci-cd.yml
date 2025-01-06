@@ -1,7 +1,7 @@
 name: CI-CD
 
 permissions:
-  contents: write  # Autorise le push vers le repo depuis GitHub Actions
+  contents: write  # Autorise l'écriture (push) dans le repo depuis GitHub Actions
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-and-test:
-    # On retire le if, pour qu'il se lance sur tout event défini plus haut
+    # Se lance sur toutes les branches indiquées dans on.push et on.pull_request
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -39,15 +39,16 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
         with:
+          fetch-depth: 0   # important pour voir toutes les branches si besoin
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
-      - name: Push to staging
+      - name: Push dev to staging
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git checkout staging
-          git push origin staging
+          # On pousse directement la branche dev vers la branche staging
+          git push origin dev:staging
 
   staging-build-test-main:
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
@@ -56,6 +57,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
@@ -74,12 +76,12 @@ jobs:
         run: |
           pytest tests
 
-      - name: Push to main
+      - name: Push staging to main
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git checkout main
-          git push origin main
+          # On pousse directement staging vers main
+          git push origin staging:main
 
   production-deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
