@@ -26,6 +26,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install pytest
+          pip install httpx
           pip install -r app/requirements.txt
 
       - name: Set PYTHONPATH
