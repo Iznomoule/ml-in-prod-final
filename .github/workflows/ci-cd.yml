@@ -33,10 +33,14 @@ jobs:
     if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
+      - name: Check out code
+        uses: actions/checkout@v2   # ← IMPORTANT : clonage pour pouvoir utiliser git
+
       - name: Push to staging
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          # Si la branche staging existe déjà, tu peux remplacer par 'git checkout staging'
           git checkout -b staging
           git push origin staging
 
@@ -46,22 +50,27 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
+
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install pytest
           pip install -r app/requirements.txt
+
       - name: Run all tests
         run: |
           pytest tests
+
       - name: Push to main
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          # Idem, si la branche main existe déjà, remplace par un checkout normal
           git checkout -b main
           git push origin main
 
@@ -88,6 +97,6 @@ jobs:
 
       - name: Deploy to Cloud
         run: |
-          # Exemple : déploiement sur Koyeb/Railway via CLI ou API
+          # Exemple : déploiement sur Koyeb/Railway
           echo "Deploying to Cloud..."
           # Commandes spécifiques à la plateforme choisie
