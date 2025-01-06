@@ -7,11 +7,11 @@ on:
   pull_request:
     branches: [ "dev" ]
   push:
-    branches: [ "dev", "staging", "main" ]
+    branches: [ "dev" ]
 
 jobs:
+  # Job A : Build & test sur dev
   build-and-test:
-    # Se lance sur toutes les branches indiquées dans on.push et on.pull_request
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -30,7 +30,6 @@ jobs:
           pip install -r app/requirements.txt
           pip install --upgrade fastapi starlette
 
-
       - name: Set PYTHONPATH
         run: |
           echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
@@ -39,14 +38,15 @@ jobs:
         run: |
           pytest tests/integration
 
+  # Job B : Push dev -> staging (dépend du job build-and-test)
   push-to-staging:
-    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0   # important pour voir toutes les branches si besoin
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
@@ -54,11 +54,13 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          # On pousse directement la branche dev vers la branche staging
+          # Force-push dev vers staging (écrase la branche staging si elle contient d'autres commits)
           git push origin dev:staging --force
 
+  # Job C : Sur la "nouvelle" staging, build & test plus complet, puis push->main
+  #         (dépend du push-to-staging)
   staging-build-test-main:
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    needs: push-to-staging
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -87,11 +89,12 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          # On pousse directement staging vers main
-          git push origin staging:main
+          git push origin staging:main --force
 
+  # Job D : Sur main, build Docker & déploiement
+  #         (dépend du staging-build-test-main)
   production-deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: staging-build-test-main
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
