@@ -115,17 +115,31 @@ jobs:
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build Docker image
+      # ============ BACKEND IMAGE ===============
+      - name: Build Docker image (backend)
         run: |
-          docker build -t iznomoule/ml-in-prod-final:latest .
-          docker tag iznomoule/ml-in-prod-final:latest iznomoule/ml-in-prod-final:${{ github.run_number }}
+          docker build -t iznomoule/ml-in-prod-final-backend:latest .
+          docker tag iznomoule/ml-in-prod-final-backend:latest iznomoule/ml-in-prod-final-backend:${{ github.run_number }}
 
-      - name: Push Docker image
+      - name: Push Docker image (backend)
         run: |
-          docker push iznomoule/ml-in-prod-final:latest
-          docker push iznomoule/ml-in-prod-final:${{ github.run_number }}
+          docker push iznomoule/ml-in-prod-final-backend:latest
+          docker push iznomoule/ml-in-prod-final-backend:${{ github.run_number }}
+
+      # ============ FRONTEND IMAGE =============
+      - name: Build Docker image (frontend)
+        run: |
+          docker build -t iznomoule/ml-in-prod-final-frontend:latest \
+            -f frontend/iris-frontend/Dockerfile .
+          docker tag iznomoule/ml-in-prod-final-frontend:latest iznomoule/ml-in-prod-final-frontend:${{ github.run_number }}
+
+      - name: Push Docker image (frontend)
+        run: |
+          docker push iznomoule/ml-in-prod-final-frontend:latest
+          docker push iznomoule/ml-in-prod-final-frontend:${{ github.run_number }}
 
       - name: Deploy to Cloud
         run: |
           echo "Deploying to Cloud..."
-          # Commandes spécifiques à la plateforme de déploiement
+          # Si tu déploies le backend sur railway/koyeb, tu pointeras l'image 'iznomoule/ml-in-prod-final-backend:latest'
+          # Pour le front, tu le déploies où tu veux (ex: un second service sur Koyeb ou un service statique).
