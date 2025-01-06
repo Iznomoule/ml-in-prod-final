@@ -129,8 +129,8 @@ jobs:
       # ============ FRONTEND IMAGE =============
       - name: Build Docker image (frontend)
         run: |
-          docker build -t iznomoule/ml-in-prod-final-frontend:latest \
-            -f frontend/iris-frontend/Dockerfile .
+          cd frontend/iris-frontend
+          docker build -t iznomoule/ml-in-prod-final-frontend:latest .
           docker tag iznomoule/ml-in-prod-final-frontend:latest iznomoule/ml-in-prod-final-frontend:${{ github.run_number }}
 
       - name: Push Docker image (frontend)
