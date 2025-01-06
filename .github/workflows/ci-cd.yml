@@ -1,5 +1,8 @@
 name: CI-CD
 
+permissions:
+  contents: write  # Autorise le push vers le repo depuis GitHub Actions
+
 on:
   pull_request:
     branches: [ "dev" ]
@@ -8,7 +11,7 @@ on:
 
 jobs:
   build-and-test:
-    if: github.event_name == 'pull_request'
+    # On retire le if, pour qu'il se lance sur tout event défini plus haut
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -34,14 +37,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v2   # ← IMPORTANT : clonage pour pouvoir utiliser git
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
       - name: Push to staging
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          # Si la branche staging existe déjà, tu peux remplacer par 'git checkout staging'
-          git checkout -b staging
+          git checkout staging
           git push origin staging
 
   staging-build-test-main:
@@ -50,6 +55,9 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -70,8 +78,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          # Idem, si la branche main existe déjà, remplace par un checkout normal
-          git checkout -b main
+          git checkout main
           git push origin main
 
   production-deploy:
@@ -97,6 +104,5 @@ jobs:
 
       - name: Deploy to Cloud
         run: |
-          # Exemple : déploiement sur Koyeb/Railway
           echo "Deploying to Cloud..."
-          # Commandes spécifiques à la plateforme choisie
+          # Commandes spécifiques à la plateforme de déploiement
