@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 
+const useLocalBackend = false; 
+const apiUrl = useLocalBackend
+  ? "http://127.0.0.1:8000" 
+  : "https://ml-in-prod-final-backend-production.up.railway.app"; 
+
 function App() {
   const [formData, setFormData] = useState({
     sepal_length: '',
@@ -18,7 +23,7 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://127.0.0.1:8000/predict', {
+    const response = await fetch(`${apiUrl}/predict`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -1,9 +1,18 @@
 import mlflow
 import mlflow.sklearn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],
+)
 
 class IrisInput(BaseModel):
     sepal_length: float
@@ -11,12 +20,10 @@ class IrisInput(BaseModel):
     petal_length: float
     petal_width: float
 
-# Configuration de MLflow
 mlflow.set_tracking_uri("https://dagshub.com/Iznomoule/ml-in-production-final-dags.mlflow")
 
 try:
-    # Charger le modèle depuis MLflow
-    model_uri = "runs:/2f7e59b059cb4a59a5d8066e2617ee8f/model"  # Remplacez par le bon Run ID
+    model_uri = "runs:/2f7e59b059cb4a59a5d8066e2617ee8f/model"
     model = mlflow.sklearn.load_model(model_uri)
 except Exception as e:
     print(f"Erreur lors du chargement du modèle: {e}")

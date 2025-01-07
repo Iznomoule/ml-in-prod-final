@@ -1,7 +1,7 @@
 name: CI-CD
 
 permissions:
-  contents: write  # Autorise l'écriture (push) dans le repo depuis GitHub Actions
+  contents: write  
 
 on:
   pull_request:
@@ -138,8 +138,4 @@ jobs:
           docker push iznomoule/ml-in-prod-final-frontend:latest
           docker push iznomoule/ml-in-prod-final-frontend:${{ github.run_number }}
 
-      - name: Deploy to Cloud
-        run: |
-          echo "Deploying to Cloud..."
-          # Si tu déploies le backend sur railway/koyeb, tu pointeras l'image 'iznomoule/ml-in-prod-final-backend:latest'
-          # Pour le front, tu le déploies où tu veux (ex: un second service sur Koyeb ou un service statique).
+

@@ -1,11 +1,10 @@
 import pytest
-from app.main import app  # Importez votre application FastAPI
+from app.main import app  
 from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
 def test_api_prediction():
-    # Envoi de données à l'API pour tester
     payload = {
         "sepal_length": 5.1,
         "sepal_width": 3.5,

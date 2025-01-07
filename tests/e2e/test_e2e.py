@@ -1,7 +1,6 @@
 import requests
 
 def test_e2e_api_prediction():
-    # URL de l'API déployée (remplacez localhost si c'est sur le cloud)
     url = "http://127.0.0.1:8000/predict"
     payload = {
         "sepal_length": 5.1,
